@@ -1,26 +1,32 @@
 # Lenny's Custom Clues
 
-A RuneLite plugin for capturing game state data during guessing games and puzzles in Old School RuneScape.
+A RuneLite plugin for capturing game state data for community-run clue scroll puzzles in Old School RuneScape.
 
 ## Plugin Functionality
 
-This plugin automatically captures the player's complete game state when specific trigger events occur **and the Event Key field contains non-whitespace text**. The captured data includes the player's location coordinates, inventory contents, and worn equipment. This information is useful for puzzle-solving games where the player's current state needs to be verified or recorded.
+As a player, set an event key given to you by your event host. Only when a valid event key is set, this plugin automatically captures the player's complete game state when specific trigger events occur. The captured data includes the player's location coordinates, inventory contents, and worn equipment. This information is sent to the Lenny's Labyrinth backend API, compared to the stored answer restrictions defined for the provided event key, and gives the player fireworks and a reward message if they have guessed correctly.
+
+As an event host, you can turn on the "Answer Builder Mode" to create a new event to be stored in the event database. You will choose an event key, answer requirements, and the reward message to be sent to players upon completion.
 
 **Key Features:**
 - Automatic game state capture on various trigger events
 - JSON-formatted output for easy processing
 - Console logging and side panel display
-- Manual submission via button interface
 - Real-time trigger detection and logging
-- Event Key field for conditional capture control
+- Event Key management for conditional capture control
+- Answer Builder Mode for creating custom puzzles
 
-## Event Key Field
+## Event Key Management
 
-The plugin includes an "Event Key" text field in its side panel interface. This field serves as a conditional gate for all game state capture operations:
+The plugin includes Event Key management buttons in its side panel interface. The event key serves as a conditional gate for all game state capture operations:
 
 - **Purpose**: Allows users to control when game state should be captured
+- **UI**: Three buttons manage the event key state:
+  - "Set Event Key" - Opens a dialog to enter an event key
+  - "Unset Event Key" - Clears the current event key
+  - "Change Event Key" - Opens a dialog to change the existing event key
 - **Requirement**: Must contain non-whitespace text for any capture to occur
-- **Behavior**: When empty or containing only whitespace, all trigger events are silently ignored
+- **Behavior**: When empty, all trigger events are silently ignored
 - **Debug Mode**: When debug mode is enabled in plugin settings, skipped captures will show debug messages in the game chat
 - **JSON Integration**: The event key value is included in all captured game state JSON under the `event_key` field
 
@@ -28,31 +34,84 @@ The plugin includes an "Event Key" text field in its side panel interface. This 
 
 The plugin captures game state data when any of the following events occur:
 
-**Important**: All trigger events require the Event Key field in the plugin's UI to contain non-whitespace text. If the Event Key is empty, capture will be silently skipped (unless debug mode is enabled, which will show debug messages in chat).
-
-### 1. Manual Button Submission
-- **Trigger**: Clicking the "Submit Answer" button in the plugin's side panel
-- **Requirement**: Event Key field must contain non-whitespace text
-- **Use case**: Manual game state submission when needed
-
-### 2. Player Emotes
-- **Trigger**: Performing any of 50+ supported emotes (wave, dance, bow, etc.)
-- **Supported emotes**: 
-  - **Basic emotes**: Yes, No, Thinking, Bow, Angry, Cry, Laugh, Cheer, Wave, Beckon, Clap, Dance, Jump for Joy, Yawn, Spin, Shrug
-  - **Special emotes**: Salute, Goblin bow, Goblin salute, Glass box, Climb rope, Lean, Glass wall
-  - **Confirmed additional emotes**: Blow Kiss, Zombie Walk, Rabbit Hop
-  - **Extended emotes (testing required)**: Jig, Headbang, Panic, Raspberry, Premier Shield, Sit down, Flex, Zombie Dance, Sit up, Push up, Star jump, Jog, Air Guitar, Uri transform, Explore, Fortis Salute, Idea, Stamp, Flap, Slap Head, Scared, Zombie Hand, Hypermobile Drinker, Smooth dance, Crazy dance, Party, Trick
-- **Use case**: Discrete signaling during gameplay
-- **Note**: Some extended emotes use estimated animation IDs and may require in-game testing to verify functionality
-
-### 3. Digging with Spade
+### 1. Digging with Spade
 - **Trigger**: Using a spade to dig (animation ID 830)
 - **Use case**: Treasure hunt and clue scroll activities
 
-### 4. NPC Interactions
+### 2. Player Emotes - **NOT YET SUPPORTED**
+- **Trigger**: Performing any of a list of supported emotes (wave, dance, bow, etc.)
+
+### 3. NPC Interactions - **NOT YET SUPPORTED**
 - **Trigger**: Any interaction with NPCs (Attack, Talk-to, Trade, Pickpocket, etc.)
-- **Scope**: All NPC menu options (first through fifth options)
-- **Use case**: Quest and dialogue-based puzzles
+
+## Configuration
+
+The plugin provides several configuration options accessible through RuneLite's plugin settings:
+
+### Available Settings
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Debug Mode** | Shows all animation IDs and debug messages in the game chat when events occur | Disabled |
+| **Victory sound effects** | Plays a celebratory sound when you solve a puzzle correctly | Enabled |
+| **Victory fireworks** | Shows fireworks when you solve a puzzle correctly | Enabled |
+| **Answer Builder Mode** | Switches the UI to Answer Builder Mode for creating puzzles (event hosts only) | Disabled |
+
+## Answer Builder Mode
+
+Answer Builder Mode is a special interface for event hosts to create custom puzzles. When enabled through the plugin configuration, the side panel switches to the Answer Builder interface.
+
+### Enabling Answer Builder Mode
+
+1. Open RuneLite plugin configuration
+2. Find "Lenny's Custom Clues" settings
+3. Enable "Answer Builder Mode"
+4. The side panel will switch to the Answer Builder interface
+
+### Answer Builder Interface
+
+The Answer Builder interface allows event hosts to:
+
+- **Define Reward Text**: Enter the message that players will see when they solve the puzzle correctly (required)
+- **Add Constraints**: Define the conditions that must be met for a correct answer
+- **Submit to Server**: Create the event with a unique event key
+
+### Constraint Types
+
+Event hosts can add multiple constraints to define puzzle requirements:
+
+1. **Location Constraints**
+   - Define specific world coordinates where the player must be
+   - Configure coordinate ranges and plane/floor requirements
+   - Use the "Use Current Location" feature to capture your current position
+
+2. **Inventory Constraints** *(In Development)*
+   - Define required items in the player's inventory
+   - Support for "contains", "exact match", and other matching modes
+
+3. **Equipment Constraints** *(In Development)*
+   - Define required equipped items
+   - Support for specific gear requirements
+
+4. **Action Constraints** *(In Development)*
+   - Define required actions (emotes, NPC interactions, etc.)
+   - Link to specific trigger events
+
+### Creating a Puzzle
+
+1. Enable Answer Builder Mode in config
+2. Enter the reward text players will receive
+3. Add one or more constraints defining the solution
+4. Click "Submit Answer to Server"
+5. Enter a unique event key for your puzzle
+6. Share the event key with players
+
+### Constraint Management
+
+- **View Constraints**: All added constraints appear in the scrollable constraints panel
+- **Remove Constraints**: Click the "X" button on any constraint to remove it
+- **Clear All**: Use the "Clear All" button to reset and start over
+- **Submit Button**: Only enabled when both reward text and at least one constraint are defined
 
 ## File Architecture
 
@@ -63,29 +122,26 @@ The plugin follows a clean separation of concerns across multiple files:
 | File | Responsibility |
 |------|---------------|
 | **LennysCustomCluesPlugin.java** | Event detection and plugin lifecycle management. Handles RuneLite event subscriptions and delegates processing to services. |
-| **LennysCustomCluesPanel.java** | UI components and user interface interactions. Contains only Swing UI code and delegates business logic to services. |
-| **GameStateService.java** | Business logic coordination, API integration, and workflow management. Orchestrates the entire capture and submission process. |
+| **MainPanel.java** | Primary panel container that switches between normal player mode and answer builder mode based on config settings. |
+| **LennysCustomCluesPanel.java** | Player mode UI with event key management buttons. Displays submission status and results. |
+| **AnswerBuilderPanel.java** | Answer builder mode UI for event hosts to create puzzles with constraints and reward text. |
+| **GameStateService.java** | Business logic coordination, API integration, and workflow management. Orchestrates the entire capture and submission process. Manages event key state. |
 | **GameStateCapture.java** | Raw data extraction and formatting from the game client. Pure data collection without side effects. |
 | **AnimationTriggers.java** | Animation ID constants and trigger detection logic. Determines which animations should trigger game state capture. |
-| **LennysCustomCluesConfig.java** | Configuration interface defining plugin settings (debug mode, event key). |
+| **CelebrationManager.java** | Manages victory celebrations including fireworks and sound effects when puzzles are solved correctly. |
+| **LennysCustomCluesConfig.java** | Configuration interface defining plugin settings (debug mode, celebration options, answer builder mode toggle). |
 | **ApiClient.java** | HTTP communication with external API. Handles JSON serialization and network requests. |
 
-### Architecture Benefits
-
-- **Single Responsibility**: Each file has one clear, focused purpose
-- **Improved Testability**: Business logic can be tested independently of UI components
-- **Better Maintainability**: Changes to game state logic don't require modifying UI code
-- **Enhanced Readability**: Smaller, focused files are easier to understand and navigate
-- **Reduced Coupling**: Components depend on clear interfaces rather than mixed concerns
-
-### Data Flow
+### Data Flow (Player Mode)
 
 1. **Event Detection**: `LennysCustomCluesPlugin` receives RuneLite events
 2. **Trigger Validation**: `AnimationTriggers` determines if the event should trigger capture
-3. **Service Coordination**: `GameStateService` orchestrates the capture workflow
+3. **Event Key Check**: `GameStateService` verifies that a valid event key is set
 4. **Data Extraction**: `GameStateCapture` extracts raw data from the game client
 5. **API Communication**: `ApiClient` submits the formatted data to the external service
-6. **UI Updates**: `LennysCustomCluesPanel` displays the results to the user
+6. **Response Handling**: `GameStateService` processes the API response
+7. **Celebration**: If successful, `CelebrationManager` triggers fireworks and sound effects
+8. **UI Updates**: `LennysCustomCluesPanel` displays the results to the user
 
 ## JSON Schema
 

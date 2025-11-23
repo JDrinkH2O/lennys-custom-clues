@@ -79,28 +79,6 @@ public class GameStateService
 		return hasEventKey();
 	}
 
-	public void captureFromButton()
-	{
-		clientThread.invokeLater(() -> {
-			if (!isEventKeyValid())
-			{
-				if (config.debug())
-				{
-					client.addChatMessage(
-						ChatMessageType.GAMEMESSAGE,
-						"",
-						"[LL-debug] Game state capture skipped - Event Key is empty",
-						null
-					);
-				}
-				return;
-			}
-			
-			String eventKey = getEventKey();
-			captureGameState("button", "Manual submission via Submit Answer button", null, null, null, eventKey);
-		});
-	}
-
 	public void captureFromAnimation(int animationId)
 	{
 		clientThread.invokeLater(() -> {
@@ -117,32 +95,9 @@ public class GameStateService
 				}
 				return;
 			}
-			
-			String triggerType = (animationId == 830) ? "dig" : "emote"; // 830 is AnimationID.DIG
-			String eventKey = getEventKey();
-			captureGameState(triggerType, "Animation ID: " + animationId, animationId, null, null, eventKey);
-		});
-	}
 
-	public void captureFromNpcInteraction(int npcId, String interactionType)
-	{
-		clientThread.invokeLater(() -> {
-			if (!isEventKeyValid())
-			{
-				if (config.debug())
-				{
-					client.addChatMessage(
-						ChatMessageType.GAMEMESSAGE,
-						"",
-						"[LL-debug] Game state capture skipped - Event Key is empty (NPC ID: " + npcId + ", Action: " + interactionType + ")",
-						null
-					);
-				}
-				return;
-			}
-			
 			String eventKey = getEventKey();
-			captureGameState("npc_interaction", "NPC ID: " + npcId + ", Action: " + interactionType, null, npcId, interactionType, eventKey);
+			captureGameState("dig", "Digging animation (ID: " + animationId + ")", animationId, null, null, eventKey);
 		});
 	}
 

@@ -27,7 +27,6 @@ public class LennysCustomCluesPanel extends PluginPanel
 	private JButton setEventKeyButton;
 	private JButton unsetEventKeyButton;
 	private JButton changeEventKeyButton;
-	private JButton submitAnswerButton;
 
 	public LennysCustomCluesPanel()
 	{
@@ -70,9 +69,6 @@ public class LennysCustomCluesPanel extends PluginPanel
 
 		changeEventKeyButton = new JButton("Change Event Key");
 		changeEventKeyButton.addActionListener(this::onChangeEventKeyClick);
-
-		submitAnswerButton = new JButton("Submit Answer");
-		submitAnswerButton.addActionListener(this::onSubmitAnswerClick);
 	}
 
 	@Inject
@@ -117,15 +113,14 @@ public class LennysCustomCluesPanel extends PluginPanel
 
 	private void showEventKeySetState()
 	{
-		buttonPanel.setLayout(new GridLayout(3, 1, 0, 5));
+		buttonPanel.setLayout(new GridLayout(2, 1, 0, 5));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 		buttonPanel.add(unsetEventKeyButton);
 		buttonPanel.add(changeEventKeyButton);
-		buttonPanel.add(submitAnswerButton);
 
 		String eventKey = gameStateService.getEventKey();
-		statusLabel.setText("<html><center>Event: " + eventKey + "<br/>Ready to submit answers</center></html>");
+		statusLabel.setText("<html><center>Event: " + eventKey + "<br/>Dig with a spade to submit</center></html>");
 	}
 
 	private void onSetEventKeyClick(ActionEvent e)
@@ -141,11 +136,6 @@ public class LennysCustomCluesPanel extends PluginPanel
 	private void onUnsetEventKeyClick(ActionEvent e)
 	{
 		gameStateService.clearEventKey();
-	}
-
-	private void onSubmitAnswerClick(ActionEvent e)
-	{
-		gameStateService.captureFromButton();
 	}
 
 	private void showEventKeyDialog(String currentEventKey, boolean isChanging)

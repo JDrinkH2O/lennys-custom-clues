@@ -3,15 +3,12 @@ package com.lennyscustomclues;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.AnimationID;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
-import net.runelite.api.MenuAction;
 import net.runelite.api.Player;
 import net.runelite.api.events.AnimationChanged;
 import net.runelite.api.events.GameStateChanged;
-import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
@@ -89,7 +86,7 @@ public class LennysCustomCluesPlugin extends Plugin
 		}
 
 		Player player = (Player) event.getActor();
-		
+
 		// Only track local player animations
 		if (player != client.getLocalPlayer())
 		{
@@ -97,7 +94,7 @@ public class LennysCustomCluesPlugin extends Plugin
 		}
 
 		int animationId = player.getAnimation();
-		
+
 		// Debug mode: show all animation IDs in chat
 		if (config.debug())
 		{
@@ -108,38 +105,12 @@ public class LennysCustomCluesPlugin extends Plugin
 				null
 			);
 		}
-		
-		// Check for trigger animations
+
+		// Check for digging animation
 		if (AnimationTriggers.isTriggerAnimation(animationId))
 		{
-			String triggerType = (animationId == AnimationID.DIG) ? "dig" : "emote";
-			log.info("{} detected with animation ID: {}", triggerType, animationId);
+			log.info("Digging detected with animation ID: {}", animationId);
 			gameStateService.captureFromAnimation(animationId);
-		}
-	}
-
-	@Subscribe
-	public void onMenuOptionClicked(MenuOptionClicked event)
-	{
-		MenuAction action = event.getMenuAction();
-		
-		// Only capture NPC interactions
-		switch (action)
-		{
-			case NPC_FIRST_OPTION:
-			case NPC_SECOND_OPTION:
-			case NPC_THIRD_OPTION:
-			case NPC_FOURTH_OPTION:
-			case NPC_FIFTH_OPTION:
-				int npcId = event.getId();
-				String menuOption = event.getMenuOption();
-				
-				log.info("NPC interaction detected: {} (ID: {}) - {}", event.getMenuTarget(), npcId, menuOption);
-				gameStateService.captureFromNpcInteraction(npcId, menuOption);
-				break;
-			default:
-				// Ignore all other menu actions (walk, objects, widgets, etc.)
-				break;
 		}
 	}
 
