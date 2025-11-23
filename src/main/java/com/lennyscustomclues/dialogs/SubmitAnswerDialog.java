@@ -7,23 +7,24 @@ import net.runelite.client.ui.ColorScheme;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class SubmitAnswerDialog extends JDialog
 {
 	private JTextField eventKeyField;
+	private JTextField secretKeyField;
 	private JButton validateKeyButton;
 	private JButton submitButton;
 	private JButton cancelButton;
 	private JLabel validationStatusLabel;
-	
+
 	private AnswerBuilder answerBuilder;
 	private ApiClient apiClient;
-	private Consumer<String> onSubmit;
+	private BiConsumer<String, String> onSubmit;
 	private boolean cancelled = true;
 	private boolean keyValidated = false;
 
-	public SubmitAnswerDialog(JFrame parent, AnswerBuilder answerBuilder, ApiClient apiClient, Consumer<String> onSubmit)
+	public SubmitAnswerDialog(JFrame parent, AnswerBuilder answerBuilder, ApiClient apiClient, BiConsumer<String, String> onSubmit)
 	{
 		super(parent, "Submit Answer to Server", false); // Non-modal
 		this.answerBuilder = answerBuilder;
@@ -53,7 +54,7 @@ public class SubmitAnswerDialog extends JDialog
 		titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
 		titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		JLabel instructionLabel = new JLabel("<html><center>Enter an event key to associate with this answer.<br/>The key must be unique and not already in use.</center></html>");
+		JLabel instructionLabel = new JLabel("<html><div style='text-align: center;'>Enter an event key to associate with this answer.<br/>The key must be unique and not already in use.</div></html>");
 		instructionLabel.setForeground(Color.LIGHT_GRAY);
 		instructionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -61,7 +62,7 @@ public class SubmitAnswerDialog extends JDialog
 		JPanel summaryPanel = new JPanel(new BorderLayout());
 		summaryPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 		summaryPanel.setBorder(BorderFactory.createTitledBorder("Answer Summary"));
-		summaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+		summaryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 
 		String rewardText = answerBuilder.getRewardText();
 		if (rewardText == null || rewardText.trim().isEmpty())
@@ -69,8 +70,28 @@ public class SubmitAnswerDialog extends JDialog
 			rewardText = "(No reward text specified)";
 		}
 
-		JTextArea summaryArea = new JTextArea(String.format("Reward: %s\nConstraints: %d", 
-			rewardText, answerBuilder.getConstraintCount()));
+		// Build human-readable constraint descriptions
+		StringBuilder summaryBuilder = new StringBuilder();
+		summaryBuilder.append("Reward: ").append(rewardText).append("\n\n");
+
+		if (answerBuilder.getConstraintCount() == 0)
+		{
+			summaryBuilder.append("No constraints defined");
+		}
+		else
+		{
+			summaryBuilder.append("Required Action: Dig with a spade\n");
+			for (int i = 0; i < answerBuilder.getConstraintCount(); i++)
+			{
+				com.lennyscustomclues.constraints.Constraint constraint = answerBuilder.getConstraint(i);
+				if (constraint instanceof com.lennyscustomclues.constraints.LocationConstraint)
+				{
+					summaryBuilder.append(getLocationConstraintDescription((com.lennyscustomclues.constraints.LocationConstraint) constraint));
+				}
+			}
+		}
+
+		JTextArea summaryArea = new JTextArea(summaryBuilder.toString());
 		summaryArea.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 		summaryArea.setForeground(Color.WHITE);
 		summaryArea.setEditable(false);
@@ -108,6 +129,22 @@ public class SubmitAnswerDialog extends JDialog
 		eventKeyPanel.add(keyInputPanel, BorderLayout.NORTH);
 		eventKeyPanel.add(validationStatusLabel, BorderLayout.SOUTH);
 
+		// Secret key input panel
+		JPanel secretKeyPanel = new JPanel(new BorderLayout());
+		secretKeyPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+		secretKeyPanel.setBorder(BorderFactory.createTitledBorder("Secret Key (Optional)"));
+
+		secretKeyField = new JTextField(20);
+		secretKeyField.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		secretKeyField.setForeground(Color.WHITE);
+
+		JLabel secretKeyInfoLabel = new JLabel("<html><i>Used to retrieve and update this answer later</i></html>");
+		secretKeyInfoLabel.setForeground(Color.LIGHT_GRAY);
+		secretKeyInfoLabel.setFont(secretKeyInfoLabel.getFont().deriveFont(11f));
+
+		secretKeyPanel.add(secretKeyField, BorderLayout.NORTH);
+		secretKeyPanel.add(secretKeyInfoLabel, BorderLayout.SOUTH);
+
 		// Button panel
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -130,6 +167,8 @@ public class SubmitAnswerDialog extends JDialog
 		mainPanel.add(summaryPanel);
 		mainPanel.add(Box.createVerticalStrut(15));
 		mainPanel.add(eventKeyPanel);
+		mainPanel.add(Box.createVerticalStrut(10));
+		mainPanel.add(secretKeyPanel);
 
 		add(mainPanel, BorderLayout.CENTER);
 		add(buttonPanel, BorderLayout.SOUTH);
@@ -209,8 +248,27 @@ public class SubmitAnswerDialog extends JDialog
 			return;
 		}
 
+		String secretKey = secretKeyField.getText().trim();
+
+		// Warn if no secret key is provided
+		if (secretKey.isEmpty())
+		{
+			int result = JOptionPane.showConfirmDialog(
+				this,
+				"You have not set a secret key for this event, which means you won't be able to inspect or update the answer in any way after creation.\n\nAre you sure you don't want to set a secret key?",
+				"No Secret Key Set",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.WARNING_MESSAGE
+			);
+
+			if (result != JOptionPane.YES_OPTION)
+			{
+				return; // User chose not to proceed
+			}
+		}
+
 		cancelled = false;
-		onSubmit.accept(eventKey);
+		onSubmit.accept(eventKey, secretKey);
 		dispose();
 	}
 
@@ -223,5 +281,57 @@ public class SubmitAnswerDialog extends JDialog
 	public boolean wasCancelled()
 	{
 		return cancelled;
+	}
+
+	private String getLocationConstraintDescription(com.lennyscustomclues.constraints.LocationConstraint constraint)
+	{
+		StringBuilder desc = new StringBuilder();
+		String type = constraint.getType();
+
+		switch (type)
+		{
+			case "exact":
+				desc.append("Location: Exact tile (");
+				desc.append("X: ").append(constraint.getExactX());
+				desc.append(", Y: ").append(constraint.getExactY());
+				if (constraint.getPlane() != null)
+				{
+					desc.append(", Plane: ").append(constraint.getPlane());
+				}
+				desc.append(")");
+				break;
+
+			case "bounds":
+				desc.append("Location: Within rectangle (");
+				desc.append("X: ").append(constraint.getMinX()).append("-").append(constraint.getMaxX());
+				desc.append(", Y: ").append(constraint.getMinY()).append("-").append(constraint.getMaxY());
+				if (constraint.getPlane() != null)
+				{
+					desc.append(", Plane: ").append(constraint.getPlane());
+				}
+				desc.append(")");
+				break;
+
+			case "tolerance":
+				desc.append("Location: Near tile (");
+				desc.append("X: ").append(constraint.getExactX());
+				desc.append(", Y: ").append(constraint.getExactY());
+				if (constraint.getTolerance() != null)
+				{
+					desc.append(", within ").append(constraint.getTolerance()).append(" tiles");
+				}
+				if (constraint.getPlane() != null)
+				{
+					desc.append(", Plane: ").append(constraint.getPlane());
+				}
+				desc.append(")");
+				break;
+
+			default:
+				desc.append("Location: ").append(constraint.description());
+				break;
+		}
+
+		return desc.toString();
 	}
 }

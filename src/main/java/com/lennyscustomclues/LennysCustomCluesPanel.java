@@ -1,5 +1,8 @@
 package com.lennyscustomclues;
 
+import com.lennyscustomclues.dialogs.AnswerBuilderDialog;
+import com.lennyscustomclues.dialogs.ManageEventDialog;
+import net.runelite.api.Client;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
@@ -19,14 +22,21 @@ public class LennysCustomCluesPanel extends PluginPanel
 	@Inject
 	private ApiClient apiClient;
 
+	@Inject
+	private Client client;
+
 	private JLabel titleLabel;
 	private JPanel buttonPanel;
 	private JLabel statusLabel;
+	private JLabel instructionalLabel;
+	private JLabel resultLabel;
 
 	// Buttons for different states
 	private JButton setEventKeyButton;
 	private JButton unsetEventKeyButton;
 	private JButton changeEventKeyButton;
+	private JButton createAnswerButton;
+	private JButton manageEventButton;
 
 	public LennysCustomCluesPanel()
 	{
@@ -63,12 +73,28 @@ public class LennysCustomCluesPanel extends PluginPanel
 	{
 		setEventKeyButton = new JButton("Set Event Key");
 		setEventKeyButton.addActionListener(this::onSetEventKeyClick);
+		setEventKeyButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+		setEventKeyButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, setEventKeyButton.getPreferredSize().height));
 
 		unsetEventKeyButton = new JButton("Unset Event Key");
 		unsetEventKeyButton.addActionListener(this::onUnsetEventKeyClick);
+		unsetEventKeyButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+		unsetEventKeyButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, unsetEventKeyButton.getPreferredSize().height));
 
 		changeEventKeyButton = new JButton("Change Event Key");
 		changeEventKeyButton.addActionListener(this::onChangeEventKeyClick);
+		changeEventKeyButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+		changeEventKeyButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, changeEventKeyButton.getPreferredSize().height));
+
+		createAnswerButton = new JButton("Create a new event");
+		createAnswerButton.addActionListener(this::onCreateAnswerClick);
+		createAnswerButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+		createAnswerButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, createAnswerButton.getPreferredSize().height));
+
+		manageEventButton = new JButton("Manage existing event");
+		manageEventButton.addActionListener(this::onManageEventClick);
+		manageEventButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+		manageEventButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, manageEventButton.getPreferredSize().height));
 	}
 
 	@Inject
@@ -105,22 +131,66 @@ public class LennysCustomCluesPanel extends PluginPanel
 
 	private void showNoEventKeyState()
 	{
-		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 10));
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		// Play in an event section
+		buttonPanel.add(createSectionLabel("Play in an event"));
+		buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 		buttonPanel.add(setEventKeyButton);
 
-		statusLabel.setText("<html><center>Set an event key to begin<br/>capturing game state</center></html>");
+		// Spacing between sections
+		buttonPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+
+		// Event management section
+		buttonPanel.add(createSectionLabel("Event management"));
+		buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+		buttonPanel.add(createAnswerButton);
+		buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+		buttonPanel.add(manageEventButton);
+
+		statusLabel.setText("");
 	}
 
 	private void showEventKeySetState()
 	{
-		buttonPanel.setLayout(new GridLayout(2, 1, 0, 5));
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		buttonPanel.add(unsetEventKeyButton);
-		buttonPanel.add(changeEventKeyButton);
-
 		String eventKey = gameStateService.getEventKey();
-		statusLabel.setText("<html><center>Event: " + eventKey + "<br/>Dig with a spade to submit</center></html>");
+
+		// Playing in event section
+		buttonPanel.add(createSectionLabel("Playing in: " + eventKey));
+		buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+
+		// Instructional text
+		instructionalLabel = new JLabel("Dig with a spade to submit your guess!");
+		instructionalLabel.setForeground(Color.WHITE);
+		instructionalLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		buttonPanel.add(instructionalLabel);
+		buttonPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+		// Result text area
+		resultLabel = new JLabel("");
+		resultLabel.setForeground(Color.WHITE);
+		resultLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		buttonPanel.add(resultLabel);
+
+		// Event key buttons
+		buttonPanel.add(changeEventKeyButton);
+		buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+		buttonPanel.add(unsetEventKeyButton);
+
+		statusLabel.setText("");
+	}
+
+	private JLabel createSectionLabel(String text)
+	{
+		JLabel label = new JLabel(text);
+		label.setForeground(ColorScheme.BRAND_ORANGE);
+		label.setFont(FontManager.getRunescapeBoldFont());
+		label.setAlignmentX(Component.LEFT_ALIGNMENT);
+		return label;
 	}
 
 	private void onSetEventKeyClick(ActionEvent e)
@@ -155,10 +225,45 @@ public class LennysCustomCluesPanel extends PluginPanel
 		dialog.setVisible(true);
 	}
 
+	private void onCreateAnswerClick(ActionEvent e)
+	{
+		// Find the parent frame
+		Window parentWindow = SwingUtilities.getWindowAncestor(this);
+		JFrame parentFrame = (parentWindow instanceof JFrame) ? (JFrame) parentWindow : null;
+
+		AnswerBuilderDialog dialog = new AnswerBuilderDialog(
+			parentFrame,
+			client,
+			apiClient
+		);
+
+		dialog.setVisible(true);
+	}
+
+	private void onManageEventClick(ActionEvent e)
+	{
+		// Find the parent frame
+		Window parentWindow = SwingUtilities.getWindowAncestor(this);
+		JFrame parentFrame = (parentWindow instanceof JFrame) ? (JFrame) parentWindow : null;
+
+		ManageEventDialog dialog = new ManageEventDialog(
+			parentFrame,
+			client,
+			apiClient
+		);
+
+		dialog.setVisible(true);
+	}
+
 	public void updateStatusLabel(String text)
 	{
 		SwingUtilities.invokeLater(() -> {
-			statusLabel.setText(text);
+			if (resultLabel != null)
+			{
+				resultLabel.setText(text);
+				buttonPanel.revalidate();
+				buttonPanel.repaint();
+			}
 		});
 	}
 }

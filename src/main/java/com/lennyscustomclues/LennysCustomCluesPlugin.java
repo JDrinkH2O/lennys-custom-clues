@@ -16,7 +16,6 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
-import net.runelite.client.events.ConfigChanged;
 
 import java.awt.image.BufferedImage;
 
@@ -111,15 +110,6 @@ public class LennysCustomCluesPlugin extends Plugin
 		{
 			log.info("Digging detected with animation ID: {}", animationId);
 			gameStateService.captureFromAnimation(animationId);
-		}
-	}
-
-	@Subscribe
-	public void onConfigChanged(ConfigChanged configChanged)
-	{
-		if (configChanged.getGroup().equals("lennyscustomclues"))
-		{
-			mainPanel.updateMode();
 		}
 	}
 

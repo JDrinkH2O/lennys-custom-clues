@@ -6,7 +6,7 @@ A RuneLite plugin for capturing game state data for community-run clue scroll pu
 
 As a player, set an event key given to you by your event host. Only when a valid event key is set, this plugin automatically captures the player's complete game state when specific trigger events occur. The captured data includes the player's location coordinates, inventory contents, and worn equipment. This information is sent to the Lenny's Labyrinth backend API, compared to the stored answer restrictions defined for the provided event key, and gives the player fireworks and a reward message if they have guessed correctly.
 
-As an event host, you can turn on the "Answer Builder Mode" to create a new event to be stored in the event database. You will choose an event key, answer requirements, and the reward message to be sent to players upon completion.
+As an event host, you can click the "Create a new Answer" button in the plugin panel to open the Answer Builder window. This allows you to create a new event to be stored in the event database. You will choose an event key, answer requirements, and the reward message to be sent to players upon completion.
 
 **Key Features:**
 - Automatic game state capture on various trigger events
@@ -14,7 +14,7 @@ As an event host, you can turn on the "Answer Builder Mode" to create a new even
 - Console logging and side panel display
 - Real-time trigger detection and logging
 - Event Key management for conditional capture control
-- Answer Builder Mode for creating custom puzzles
+- Answer Builder window for creating custom puzzles
 
 ## Event Key Management
 
@@ -55,22 +55,20 @@ The plugin provides several configuration options accessible through RuneLite's 
 | **Debug Mode** | Shows all animation IDs and debug messages in the game chat when events occur | Disabled |
 | **Victory sound effects** | Plays a celebratory sound when you solve a puzzle correctly | Enabled |
 | **Victory fireworks** | Shows fireworks when you solve a puzzle correctly | Enabled |
-| **Answer Builder Mode** | Switches the UI to Answer Builder Mode for creating puzzles (event hosts only) | Disabled |
 
-## Answer Builder Mode
+## Answer Builder
 
-Answer Builder Mode is a special interface for event hosts to create custom puzzles. When enabled through the plugin configuration, the side panel switches to the Answer Builder interface.
+The Answer Builder is a separate window for event hosts to create custom puzzles. Click the "Create a new Answer" button in the plugin panel to open the Answer Builder window.
 
-### Enabling Answer Builder Mode
+### Opening the Answer Builder
 
-1. Open RuneLite plugin configuration
-2. Find "Lenny's Custom Clues" settings
-3. Enable "Answer Builder Mode"
-4. The side panel will switch to the Answer Builder interface
+1. Open the Lenny's Custom Clues plugin panel
+2. Click the "Create a new Answer" button (available in all states)
+3. The Answer Builder window will open
 
-### Answer Builder Interface
+### Answer Builder Window
 
-The Answer Builder interface allows event hosts to:
+The Answer Builder window allows event hosts to:
 
 - **Define Reward Text**: Enter the message that players will see when they solve the puzzle correctly (required)
 - **Add Constraints**: Define the conditions that must be met for a correct answer
@@ -99,7 +97,7 @@ Event hosts can add multiple constraints to define puzzle requirements:
 
 ### Creating a Puzzle
 
-1. Enable Answer Builder Mode in config
+1. Click "Create a new Answer" in the plugin panel
 2. Enter the reward text players will receive
 3. Add one or more constraints defining the solution
 4. Click "Submit Answer to Server"
@@ -122,14 +120,16 @@ The plugin follows a clean separation of concerns across multiple files:
 | File | Responsibility |
 |------|---------------|
 | **LennysCustomCluesPlugin.java** | Event detection and plugin lifecycle management. Handles RuneLite event subscriptions and delegates processing to services. |
-| **MainPanel.java** | Primary panel container that switches between normal player mode and answer builder mode based on config settings. |
-| **LennysCustomCluesPanel.java** | Player mode UI with event key management buttons. Displays submission status and results. |
-| **AnswerBuilderPanel.java** | Answer builder mode UI for event hosts to create puzzles with constraints and reward text. |
+| **MainPanel.java** | Primary panel container that displays the plugin UI. |
+| **LennysCustomCluesPanel.java** | Player mode UI with event key management buttons and "Create a new Answer" button. Displays submission status and results. |
+| **dialogs/AnswerBuilderDialog.java** | Answer builder dialog window for event hosts to create puzzles with constraints and reward text. |
+| **dialogs/LocationConstraintDialog.java** | Dialog for configuring location constraints with live coordinate display and "Use Current Location" feature. |
+| **dialogs/SubmitAnswerDialog.java** | Dialog for submitting completed answers to the server with event key validation. |
 | **GameStateService.java** | Business logic coordination, API integration, and workflow management. Orchestrates the entire capture and submission process. Manages event key state. |
 | **GameStateCapture.java** | Raw data extraction and formatting from the game client. Pure data collection without side effects. |
 | **AnimationTriggers.java** | Animation ID constants and trigger detection logic. Determines which animations should trigger game state capture. |
 | **CelebrationManager.java** | Manages victory celebrations including fireworks and sound effects when puzzles are solved correctly. |
-| **LennysCustomCluesConfig.java** | Configuration interface defining plugin settings (debug mode, celebration options, answer builder mode toggle). |
+| **LennysCustomCluesConfig.java** | Configuration interface defining plugin settings (debug mode, celebration options). |
 | **ApiClient.java** | HTTP communication with external API. Handles JSON serialization and network requests. |
 
 ### Data Flow (Player Mode)

@@ -36,8 +36,7 @@ public class GameStateService
 	private CelebrationManager celebrationManager;
 
 	private LennysCustomCluesPanel panel;
-	private AnswerBuilderPanel answerBuilderPanel;
-	
+
 	// Event key management
 	private String currentEventKey = "";
 
@@ -126,7 +125,7 @@ public class GameStateService
 			if (panel != null)
 			{
 				panel.updateStatusLabel(String.format(
-					"<html><center>Submitting...<br/>Trigger: %s<br/>%s<br/>Event: %s</center></html>",
+					"<html><div style='text-align: center;'>Submitting...<br/>Trigger: %s<br/>%s<br/>Event: %s</div></html>",
 					trigger,
 					additionalInfo,
 					eventKey
@@ -166,14 +165,14 @@ public class GameStateService
 			if (response.success)
 			{
 				statusText = String.format(
-					"<html><center><font color='green'>✓ CORRECT!</font><br/>%s</center></html>",
+					"<html><div style='text-align: center;'><font color='green'> CORRECT!</font><br/>%s</div></html>",
 					response.message
 				);
 			}
 			else
 			{
 				statusText = String.format(
-					"<html><center><font color='red'>✗ %s</font><br/>%s</center></html>",
+					"<html><div style='text-align: center;'><font color='red'> %s</font><br/>%s</div></html>",
 					response.success ? "SUCCESS" : "FAILED",
 					response.message
 				);
@@ -192,7 +191,7 @@ public class GameStateService
 			if (response.success)
 			{
 				// Always show success messages
-				String chatMessage = "[Lenny's Custom Clues] ✓ " + response.message;
+				String chatMessage = "[Lenny's Custom Clues] " + response.message;
 				client.addChatMessage(
 					ChatMessageType.GAMEMESSAGE,
 					"",
@@ -203,7 +202,7 @@ public class GameStateService
 			else if (config.debug())
 			{
 				// Only show failure messages in debug mode
-				String chatMessage = "[LL-debug] ✗ " + response.message;
+				String chatMessage = "[LL-debug] " + response.message;
 				client.addChatMessage(
 					ChatMessageType.GAMEMESSAGE,
 					"",

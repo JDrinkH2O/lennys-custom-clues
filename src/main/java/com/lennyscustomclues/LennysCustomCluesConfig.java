@@ -37,14 +37,4 @@ public interface LennysCustomCluesConfig extends Config
 		return true;
 	}
 
-	@ConfigItem(
-		keyName = "answerBuilderMode",
-		name = "Answer Builder Mode",
-		description = "Enable answer builder mode to create and test puzzle answers locally"
-	)
-	default boolean answerBuilderMode()
-	{
-		return false;
-	}
-
 }
