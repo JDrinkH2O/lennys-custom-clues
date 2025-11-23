@@ -1,4 +1,4 @@
-package com.lennyslabyrinth.constraints;
+package com.lennyscustomclues.constraints;
 
 public interface Constraint
 {

@@ -1,7 +1,7 @@
-package com.lennyslabyrinth.dialogs;
+package com.lennyscustomclues.dialogs;
 
-import com.lennyslabyrinth.AnswerBuilder;
-import com.lennyslabyrinth.ApiClient;
+import com.lennyscustomclues.AnswerBuilder;
+import com.lennyscustomclues.ApiClient;
 import net.runelite.client.ui.ColorScheme;
 
 import javax.swing.*;

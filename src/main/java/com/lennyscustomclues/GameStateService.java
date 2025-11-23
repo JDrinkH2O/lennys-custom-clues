@@ -1,4 +1,4 @@
-package com.lennyslabyrinth;
+package com.lennyscustomclues;
 
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -24,7 +24,7 @@ public class GameStateService
 	private ClientThread clientThread;
 
 	@Inject
-	private LennysLabyrinthConfig config;
+	private LennysCustomCluesConfig config;
 
 	@Inject
 	private ApiClient apiClient;
@@ -35,13 +35,13 @@ public class GameStateService
 	@Inject
 	private CelebrationManager celebrationManager;
 
-	private LennysLabyrinthPanel panel;
+	private LennysCustomCluesPanel panel;
 	private AnswerBuilderPanel answerBuilderPanel;
 	
 	// Event key management
 	private String currentEventKey = "";
 
-	public void setPanel(LennysLabyrinthPanel panel)
+	public void setPanel(LennysCustomCluesPanel panel)
 	{
 		this.panel = panel;
 	}
@@ -162,7 +162,7 @@ public class GameStateService
 				locationData, inventoryData, wornItemsData, emoteId, npcId, interactionType, eventKey);
 
 			// Log submission info
-			log.info("=== Lenny's Labyrinth Game State Submission ({}) ===", trigger);
+			log.info("=== Lenny's Custom Clues Game State Submission ({}) ===", trigger);
 			log.info("Trigger info: {}", additionalInfo);
 			log.info("Event Key: {}, Inventory: {} items, Worn: {} items", 
 				eventKey, inventoryData.size(), wornItemsData.size());
@@ -237,7 +237,7 @@ public class GameStateService
 			if (response.success)
 			{
 				// Always show success messages
-				String chatMessage = "[Lenny's Labyrinth] ✓ " + response.message;
+				String chatMessage = "[Lenny's Custom Clues] ✓ " + response.message;
 				client.addChatMessage(
 					ChatMessageType.GAMEMESSAGE,
 					"",

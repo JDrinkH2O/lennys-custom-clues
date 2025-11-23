@@ -1,4 +1,4 @@
-package com.lennyslabyrinth;
+package com.lennyscustomclues;
 
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
@@ -11,7 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 @Singleton
-public class LennysLabyrinthPanel extends PluginPanel
+public class LennysCustomCluesPanel extends PluginPanel
 {
 	@Inject
 	private GameStateService gameStateService;
@@ -29,13 +29,13 @@ public class LennysLabyrinthPanel extends PluginPanel
 	private JButton changeEventKeyButton;
 	private JButton submitAnswerButton;
 
-	public LennysLabyrinthPanel()
+	public LennysCustomCluesPanel()
 	{
 		setLayout(new BorderLayout());
 		setBackground(ColorScheme.DARK_GRAY_COLOR);
 
 		// Title label
-		titleLabel = new JLabel("Lenny's Labyrinth");
+		titleLabel = new JLabel("Lenny's Custom Clues");
 		titleLabel.setForeground(Color.WHITE);
 		titleLabel.setFont(FontManager.getRunescapeFont());
 		titleLabel.setHorizontalAlignment(SwingConstants.CENTER);

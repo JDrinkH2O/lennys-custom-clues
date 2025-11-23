@@ -1,4 +1,4 @@
-# Lenny's Labyrinth
+# Lenny's Custom Clues
 
 A RuneLite plugin for capturing game state data during guessing games and puzzles in Old School RuneScape.
 
@@ -62,12 +62,12 @@ The plugin follows a clean separation of concerns across multiple files:
 
 | File | Responsibility |
 |------|---------------|
-| **LennysLabyrinthPlugin.java** | Event detection and plugin lifecycle management. Handles RuneLite event subscriptions and delegates processing to services. |
-| **LennysLabyrinthPanel.java** | UI components and user interface interactions. Contains only Swing UI code and delegates business logic to services. |
+| **LennysCustomCluesPlugin.java** | Event detection and plugin lifecycle management. Handles RuneLite event subscriptions and delegates processing to services. |
+| **LennysCustomCluesPanel.java** | UI components and user interface interactions. Contains only Swing UI code and delegates business logic to services. |
 | **GameStateService.java** | Business logic coordination, API integration, and workflow management. Orchestrates the entire capture and submission process. |
 | **GameStateCapture.java** | Raw data extraction and formatting from the game client. Pure data collection without side effects. |
 | **AnimationTriggers.java** | Animation ID constants and trigger detection logic. Determines which animations should trigger game state capture. |
-| **LennysLabyrinthConfig.java** | Configuration interface defining plugin settings (debug mode, event key). |
+| **LennysCustomCluesConfig.java** | Configuration interface defining plugin settings (debug mode, event key). |
 | **ApiClient.java** | HTTP communication with external API. Handles JSON serialization and network requests. |
 
 ### Architecture Benefits
@@ -80,12 +80,12 @@ The plugin follows a clean separation of concerns across multiple files:
 
 ### Data Flow
 
-1. **Event Detection**: `LennysLabyrinthPlugin` receives RuneLite events
+1. **Event Detection**: `LennysCustomCluesPlugin` receives RuneLite events
 2. **Trigger Validation**: `AnimationTriggers` determines if the event should trigger capture
 3. **Service Coordination**: `GameStateService` orchestrates the capture workflow
 4. **Data Extraction**: `GameStateCapture` extracts raw data from the game client
 5. **API Communication**: `ApiClient` submits the formatted data to the external service
-6. **UI Updates**: `LennysLabyrinthPanel` displays the results to the user
+6. **UI Updates**: `LennysCustomCluesPanel` displays the results to the user
 
 ## JSON Schema
 

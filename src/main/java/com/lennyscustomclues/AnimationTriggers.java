@@ -1,4 +1,4 @@
-package com.lennyslabyrinth;
+package com.lennyscustomclues;
 
 import net.runelite.api.AnimationID;
 

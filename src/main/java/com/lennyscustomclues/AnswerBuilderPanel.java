@@ -1,8 +1,8 @@
-package com.lennyslabyrinth;
+package com.lennyscustomclues;
 
-import com.lennyslabyrinth.constraints.*;
-import com.lennyslabyrinth.dialogs.LocationConstraintDialog;
-import com.lennyslabyrinth.dialogs.SubmitAnswerDialog;
+import com.lennyscustomclues.constraints.*;
+import com.lennyscustomclues.dialogs.LocationConstraintDialog;
+import com.lennyscustomclues.dialogs.SubmitAnswerDialog;
 import net.runelite.api.Client;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;

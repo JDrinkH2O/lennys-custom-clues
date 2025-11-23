@@ -1,4 +1,4 @@
-package com.lennyslabyrinth;
+package com.lennyscustomclues;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
@@ -25,15 +25,15 @@ import java.awt.image.BufferedImage;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Lenny's Labyrinth"
+	name = "Lenny's Custom Clues"
 )
-public class LennysLabyrinthPlugin extends Plugin
+public class LennysCustomCluesPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private LennysLabyrinthConfig config;
+	private LennysCustomCluesConfig config;
 
 	@Inject
 	private ClientToolbar clientToolbar;
@@ -52,12 +52,12 @@ public class LennysLabyrinthPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-		log.info("Lenny's Labyrinth started!");
+		log.info("Lenny's Custom Clues started!");
 
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/util/clue_arrow.png");
 
 		navButton = NavigationButton.builder()
-			.tooltip("Lenny's Labyrinth")
+			.tooltip("Lenny's Custom Clues")
 			.icon(icon)
 			.priority(5)
 			.panel(mainPanel)
@@ -69,7 +69,7 @@ public class LennysLabyrinthPlugin extends Plugin
 	@Override
 	protected void shutDown() throws Exception
 	{
-		log.info("Lenny's Labyrinth stopped!");
+		log.info("Lenny's Custom Clues stopped!");
 		clientToolbar.removeNavigation(navButton);
 	}
 
@@ -146,15 +146,15 @@ public class LennysLabyrinthPlugin extends Plugin
 	@Subscribe
 	public void onConfigChanged(ConfigChanged configChanged)
 	{
-		if (configChanged.getGroup().equals("lennyslabyrinth"))
+		if (configChanged.getGroup().equals("lennyscustomclues"))
 		{
 			mainPanel.updateMode();
 		}
 	}
 
 	@Provides
-	LennysLabyrinthConfig provideConfig(ConfigManager configManager)
+	LennysCustomCluesConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(LennysLabyrinthConfig.class);
+		return configManager.getConfig(LennysCustomCluesConfig.class);
 	}
 }

@@ -1,6 +1,6 @@
-package com.lennyslabyrinth.dialogs;
+package com.lennyscustomclues.dialogs;
 
-import com.lennyslabyrinth.constraints.LocationConstraint;
+import com.lennyscustomclues.constraints.LocationConstraint;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;

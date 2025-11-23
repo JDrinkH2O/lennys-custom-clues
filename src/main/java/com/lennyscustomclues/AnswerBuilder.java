@@ -1,7 +1,7 @@
-package com.lennyslabyrinth;
+package com.lennyscustomclues;
 
-import com.lennyslabyrinth.constraints.*;
-import com.lennyslabyrinth.ApiClient.GameStateSubmission;
+import com.lennyscustomclues.constraints.*;
+import com.lennyscustomclues.ApiClient.GameStateSubmission;
 import java.util.ArrayList;
 import java.util.List;
 

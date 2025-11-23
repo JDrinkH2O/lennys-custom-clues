@@ -1,4 +1,4 @@
-package com.lennyslabyrinth;
+package com.lennyscustomclues;
 
 import net.runelite.api.Client;
 import net.runelite.api.InventoryID;

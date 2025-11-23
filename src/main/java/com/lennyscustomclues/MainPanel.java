@@ -1,4 +1,4 @@
-package com.lennyslabyrinth;
+package com.lennyscustomclues;
 
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
@@ -11,10 +11,10 @@ import java.awt.*;
 public class MainPanel extends PluginPanel
 {
 	@Inject
-	private LennysLabyrinthConfig config;
+	private LennysCustomCluesConfig config;
 
 	@Inject
-	private LennysLabyrinthPanel normalPanel;
+	private LennysCustomCluesPanel normalPanel;
 
 	@Inject
 	private AnswerBuilderPanel answerBuilderPanel;

@@ -1,4 +1,4 @@
-package com.lennyslabyrinth;
+package com.lennyscustomclues;
 
 import net.runelite.api.Client;
 import net.runelite.api.SoundEffectID;
@@ -20,7 +20,7 @@ public class CelebrationManager
 	private ClientThread clientThread;
 
 	@Inject
-	private LennysLabyrinthConfig config;
+	private LennysCustomCluesConfig config;
 
 	public void triggerVictoryCelebration(String puzzleName)
 	{
