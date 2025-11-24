@@ -45,6 +45,7 @@ public class AnswerBuilderDialog extends JDialog
 	// Buttons
 	private JButton clearAnswerButton;
 	private JButton submitAnswerButton;
+	private JButton cancelButton;
 
 	// Constructor for creating a new answer
 	public AnswerBuilderDialog(JFrame parent, Client client, ApiClient apiClient)
@@ -197,6 +198,7 @@ public class AnswerBuilderDialog extends JDialog
 		clearButtonPanel.add(clearAnswerButton);
 
 		submitPanel.add(submitAnswerButton);
+		submitPanel.add(cancelButton);
 
 		// Status label
 		statusLabel = new JLabel("Ready to build answer");
@@ -231,6 +233,25 @@ public class AnswerBuilderDialog extends JDialog
 		submitAnswerButton = new JButton(isUpdateMode ? "Update on Server" : "Submit to Server");
 		submitAnswerButton.addActionListener(this::onSubmitAnswer);
 		submitAnswerButton.setEnabled(false); // Initially disabled
+
+		cancelButton = new JButton("Cancel and discard changes");
+		cancelButton.addActionListener(this::onCancel);
+	}
+
+	private void onCancel(ActionEvent e)
+	{
+		int result = JOptionPane.showConfirmDialog(
+			this,
+			"Are you sure you want to cancel and discard all changes?",
+			"Confirm Cancel",
+			JOptionPane.YES_NO_OPTION,
+			JOptionPane.WARNING_MESSAGE
+		);
+
+		if (result == JOptionPane.YES_OPTION)
+		{
+			dispose();
+		}
 	}
 
 	private void createLocationFields()

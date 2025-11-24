@@ -164,7 +164,7 @@ public class LennysCustomCluesPanel extends PluginPanel
 		buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
 		// Instructional text
-		instructionalLabel = new JLabel("Dig with a spade to submit your guess!");
+		instructionalLabel = new JLabel("<html>Try and solve the clue!<br/>Good luck!</html>");
 		instructionalLabel.setForeground(Color.WHITE);
 		instructionalLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		buttonPanel.add(instructionalLabel);
@@ -175,6 +175,9 @@ public class LennysCustomCluesPanel extends PluginPanel
 		resultLabel.setForeground(Color.WHITE);
 		resultLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		buttonPanel.add(resultLabel);
+
+		// Push buttons to bottom
+		buttonPanel.add(Box.createVerticalGlue());
 
 		// Event key buttons
 		buttonPanel.add(changeEventKeyButton);

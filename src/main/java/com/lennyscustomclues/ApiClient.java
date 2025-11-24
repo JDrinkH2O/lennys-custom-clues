@@ -637,6 +637,7 @@ public class ApiClient
 	{
 		public String reward_text;
 		public List<java.util.Map<String, Object>> constraints;
+		public List<PlayerCompletion> completed_by;
 		public String errorType;
 		public String errorMessage;
 
@@ -652,5 +653,11 @@ public class ApiClient
 			response.errorMessage = errorMessage;
 			return response;
 		}
+	}
+
+	public static class PlayerCompletion
+	{
+		public String rsn;
+		public String timestamp;
 	}
 }

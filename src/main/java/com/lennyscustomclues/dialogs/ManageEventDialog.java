@@ -149,24 +149,25 @@ public class ManageEventDialog extends JDialog
 
 				if (response.isSuccess())
 				{
-					// Successfully retrieved the answer - open the answer builder dialog
+					// Successfully retrieved the answer - open the event info dialog
 					statusLabel.setText("Event loaded successfully!");
 					statusLabel.setForeground(Color.GREEN);
 
 					// Close this dialog
 					dispose();
 
-					// Open the answer builder dialog in update mode
-					AnswerBuilderDialog answerDialog = new AnswerBuilderDialog(
+					// Open the event info dialog to show answer summary and solvers
+					EventInfoDialog eventInfoDialog = new EventInfoDialog(
 						parentFrame,
 						client,
 						apiClient,
 						eventKey,
 						secretKey,
 						response.reward_text,
-						response.constraints
+						response.constraints,
+						response.completed_by
 					);
-					answerDialog.setVisible(true);
+					eventInfoDialog.setVisible(true);
 				}
 				else
 				{
