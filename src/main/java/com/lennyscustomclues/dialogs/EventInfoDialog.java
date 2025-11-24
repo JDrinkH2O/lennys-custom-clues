@@ -1,6 +1,7 @@
 package com.lennyscustomclues.dialogs;
 
 import com.lennyscustomclues.ApiClient;
+import com.lennyscustomclues.EmoteData;
 import com.lennyscustomclues.constraints.LocationConstraint;
 import net.runelite.api.Client;
 import net.runelite.client.ui.ColorScheme;
@@ -115,7 +116,35 @@ public class EventInfoDialog extends JDialog
 		}
 		else
 		{
-			summaryBuilder.append("Required Action: Dig with a spade\n");
+			// Check if there's an emote constraint
+			String requiredAction = "Dig with a spade";
+			for (Map<String, Object> constraintMap : constraints)
+			{
+				String constraintType = (String) constraintMap.get("constraint_type");
+				if ("action".equals(constraintType))
+				{
+					String type = (String) constraintMap.get("type");
+					if ("emote".equals(type))
+					{
+						Object emoteIdObj = constraintMap.get("emote_id");
+						if (emoteIdObj != null)
+						{
+							Integer emoteId = null;
+							if (emoteIdObj instanceof Number)
+							{
+								emoteId = ((Number) emoteIdObj).intValue();
+							}
+							if (emoteId != null)
+							{
+								String emoteName = EmoteData.getEmoteName(emoteId);
+								requiredAction = "Perform an Emote: " + emoteName;
+							}
+						}
+					}
+				}
+			}
+			summaryBuilder.append("Required Action: ").append(requiredAction).append("\n");
+
 			for (Map<String, Object> constraintMap : constraints)
 			{
 				String constraintType = (String) constraintMap.get("constraint_type");

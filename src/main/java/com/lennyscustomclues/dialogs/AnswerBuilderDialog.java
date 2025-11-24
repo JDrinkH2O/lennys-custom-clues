@@ -3,6 +3,7 @@ package com.lennyscustomclues.dialogs;
 import com.lennyscustomclues.constraints.*;
 import com.lennyscustomclues.AnswerBuilder;
 import com.lennyscustomclues.ApiClient;
+import com.lennyscustomclues.EmoteData;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
@@ -41,6 +42,12 @@ public class AnswerBuilderDialog extends JDialog
 	private JButton useCurrentLocationButton;
 	private JLabel coordinatesLabel;
 	private Timer coordinateUpdateTimer;
+
+	// Emote Constraint section
+	private JPanel emoteSelectionPanel;
+	private JLabel emoteDisplayLabel;
+	private JButton selectEmoteButton;
+	private ActionConstraint emoteConstraint;
 
 	// Buttons
 	private JButton clearAnswerButton;
@@ -121,17 +128,42 @@ public class AnswerBuilderDialog extends JDialog
 		rewardPanel.add(rewardScrollPane, BorderLayout.CENTER);
 
 		// 2. Required Action section
-		JPanel requiredActionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel requiredActionPanel = new JPanel();
+		requiredActionPanel.setLayout(new BoxLayout(requiredActionPanel, BoxLayout.Y_AXIS));
 		requiredActionPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
 		requiredActionPanel.setBorder(BorderFactory.createTitledBorder("Required Action"));
-		requiredActionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+		JPanel actionTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		actionTypePanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
 
 		JLabel actionLabel = new JLabel("Action Type:");
 		actionLabel.setForeground(Color.WHITE);
-		requiredActionPanel.add(actionLabel);
+		actionTypePanel.add(actionLabel);
 
-		requiredActionCombo = new JComboBox<>(new String[]{"Dig with a spade"});
-		requiredActionPanel.add(requiredActionCombo);
+		requiredActionCombo = new JComboBox<>(new String[]{"Dig with a spade", "Perform an Emote"});
+		requiredActionCombo.addActionListener(this::onActionTypeChanged);
+		actionTypePanel.add(requiredActionCombo);
+
+		requiredActionPanel.add(actionTypePanel);
+
+		// Emote selection panel (initially hidden)
+		emoteSelectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		emoteSelectionPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+		emoteSelectionPanel.setVisible(false);
+
+		emoteDisplayLabel = new JLabel("No emote selected");
+		emoteDisplayLabel.setForeground(Color.LIGHT_GRAY);
+		emoteSelectionPanel.add(emoteDisplayLabel);
+
+		selectEmoteButton = new JButton("Select Emote");
+		selectEmoteButton.addActionListener(this::onSelectEmote);
+		emoteSelectionPanel.add(selectEmoteButton);
+
+		JButton clearEmoteButton = new JButton("Clear");
+		clearEmoteButton.addActionListener(this::onClearEmote);
+		emoteSelectionPanel.add(clearEmoteButton);
+
+		requiredActionPanel.add(emoteSelectionPanel);
 
 		// 3. Location Constraint section
 		JPanel locationConstraintPanel = new JPanel();
@@ -292,6 +324,15 @@ public class AnswerBuilderDialog extends JDialog
 		return label;
 	}
 
+	private void onActionTypeChanged(ActionEvent e)
+	{
+		String selectedAction = (String) requiredActionCombo.getSelectedItem();
+		boolean isEmoteAction = "Perform an Emote".equals(selectedAction);
+
+		emoteSelectionPanel.setVisible(isEmoteAction);
+		pack(); // Resize dialog to fit new content
+	}
+
 	private void onLocationTypeChanged(ActionEvent e)
 	{
 		updateLocationFieldsVisibility();
@@ -407,6 +448,44 @@ public class AnswerBuilderDialog extends JDialog
 		}
 	}
 
+	private void onSelectEmote(ActionEvent e)
+	{
+		Window parentWindow = SwingUtilities.getWindowAncestor(this);
+		JFrame parentFrame = (parentWindow instanceof JFrame) ? (JFrame) parentWindow : null;
+
+		EmoteConstraintDialog dialog = new EmoteConstraintDialog(
+			parentFrame,
+			emoteConstraint,
+			constraint -> {
+				emoteConstraint = constraint;
+				updateEmoteDisplay();
+			}
+		);
+
+		dialog.setVisible(true);
+	}
+
+	private void onClearEmote(ActionEvent e)
+	{
+		emoteConstraint = null;
+		updateEmoteDisplay();
+	}
+
+	private void updateEmoteDisplay()
+	{
+		if (emoteConstraint != null && emoteConstraint.getEmoteId() != null)
+		{
+			String emoteName = EmoteData.getEmoteName(emoteConstraint.getEmoteId());
+			emoteDisplayLabel.setText("Selected: " + emoteName);
+			emoteDisplayLabel.setForeground(Color.WHITE);
+		}
+		else
+		{
+			emoteDisplayLabel.setText("No emote selected");
+			emoteDisplayLabel.setForeground(Color.LIGHT_GRAY);
+		}
+	}
+
 	private void onSubmitAnswer(ActionEvent e)
 	{
 		try
@@ -422,6 +501,18 @@ public class AnswerBuilderDialog extends JDialog
 			if (locationConstraint != null)
 			{
 				answerBuilder.addConstraint(locationConstraint);
+			}
+
+			// Add the emote constraint if "Perform an Emote" is selected
+			String selectedAction = (String) requiredActionCombo.getSelectedItem();
+			if ("Perform an Emote".equals(selectedAction))
+			{
+				if (emoteConstraint == null || emoteConstraint.getEmoteId() == null)
+				{
+					JOptionPane.showMessageDialog(this, "Please select an emote", "Emote Required", JOptionPane.WARNING_MESSAGE);
+					return;
+				}
+				answerBuilder.addConstraint(emoteConstraint);
 			}
 
 			if (isUpdateMode)
@@ -610,7 +701,10 @@ public class AnswerBuilderDialog extends JDialog
 		{
 			answerBuilder.clear();
 			rewardTextArea.setText("");
+			requiredActionCombo.setSelectedItem("Dig with a spade");
 			clearLocationFields();
+			emoteConstraint = null;
+			updateEmoteDisplay();
 			updateSubmitButtonState();
 			statusLabel.setText("Answer cleared");
 		}
@@ -681,13 +775,13 @@ public class AnswerBuilderDialog extends JDialog
 		// Set reward text
 		rewardTextArea.setText(rewardText);
 
-		// Parse and set location constraint if present
+		// Parse and set constraints if present
 		if (constraints != null && !constraints.isEmpty())
 		{
-			// Find the location constraint (assuming there's only one for now)
 			for (java.util.Map<String, Object> constraintMap : constraints)
 			{
 				String constraintType = (String) constraintMap.get("constraint_type");
+
 				if ("location".equals(constraintType))
 				{
 					String type = (String) constraintMap.get("type");
@@ -717,6 +811,33 @@ public class AnswerBuilderDialog extends JDialog
 
 					// Set plane if present
 					setIntegerField("plane", constraintMap.get("plane"));
+				}
+				else if ("action".equals(constraintType))
+				{
+					String type = (String) constraintMap.get("type");
+
+					if ("emote".equals(type))
+					{
+						Object emoteIdObj = constraintMap.get("emote_id");
+						if (emoteIdObj != null)
+						{
+							Integer emoteId = null;
+							if (emoteIdObj instanceof Number)
+							{
+								emoteId = ((Number) emoteIdObj).intValue();
+							}
+
+							if (emoteId != null)
+							{
+								// Set the action type to "Perform an Emote"
+								requiredActionCombo.setSelectedItem("Perform an Emote");
+
+								emoteConstraint = new ActionConstraint("emote");
+								emoteConstraint.setEmoteId(emoteId);
+								updateEmoteDisplay();
+							}
+						}
+					}
 				}
 			}
 		}

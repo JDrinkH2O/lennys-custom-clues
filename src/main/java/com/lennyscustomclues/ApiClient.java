@@ -219,6 +219,22 @@ public class ApiClient
 
 					request.answer.constraints.add(constraintMap);
 				}
+				else if (constraint instanceof com.lennyscustomclues.constraints.ActionConstraint)
+				{
+					com.lennyscustomclues.constraints.ActionConstraint actionConstraint = (com.lennyscustomclues.constraints.ActionConstraint) constraint;
+					java.util.Map<String, Object> constraintMap = new java.util.HashMap<>();
+					constraintMap.put("constraint_type", actionConstraint.getConstraintType());
+					constraintMap.put("type", actionConstraint.getType());
+
+					if (actionConstraint.getEmoteId() != null) constraintMap.put("emote_id", actionConstraint.getEmoteId());
+					if (actionConstraint.getEmoteIds() != null) constraintMap.put("emote_ids", actionConstraint.getEmoteIds());
+					if (actionConstraint.getNpcId() != null) constraintMap.put("npc_id", actionConstraint.getNpcId());
+					if (actionConstraint.getNpcIds() != null) constraintMap.put("npc_ids", actionConstraint.getNpcIds());
+					if (actionConstraint.getInteractionType() != null) constraintMap.put("interaction_type", actionConstraint.getInteractionType());
+					if (actionConstraint.getInteractionTypes() != null) constraintMap.put("interaction_types", actionConstraint.getInteractionTypes());
+
+					request.answer.constraints.add(constraintMap);
+				}
 			}
 
 			String json = gson.toJson(request);
@@ -415,6 +431,22 @@ public class ApiClient
 					if (locConstraint.getMaxY() != null) constraintMap.put("max_y", locConstraint.getMaxY());
 					if (locConstraint.getPlane() != null) constraintMap.put("plane", locConstraint.getPlane());
 					if (locConstraint.getTolerance() != null) constraintMap.put("tolerance", locConstraint.getTolerance());
+
+					answerData.constraints.add(constraintMap);
+				}
+				else if (constraint instanceof com.lennyscustomclues.constraints.ActionConstraint)
+				{
+					com.lennyscustomclues.constraints.ActionConstraint actionConstraint = (com.lennyscustomclues.constraints.ActionConstraint) constraint;
+					java.util.Map<String, Object> constraintMap = new java.util.HashMap<>();
+					constraintMap.put("constraint_type", actionConstraint.getConstraintType());
+					constraintMap.put("type", actionConstraint.getType());
+
+					if (actionConstraint.getEmoteId() != null) constraintMap.put("emote_id", actionConstraint.getEmoteId());
+					if (actionConstraint.getEmoteIds() != null) constraintMap.put("emote_ids", actionConstraint.getEmoteIds());
+					if (actionConstraint.getNpcId() != null) constraintMap.put("npc_id", actionConstraint.getNpcId());
+					if (actionConstraint.getNpcIds() != null) constraintMap.put("npc_ids", actionConstraint.getNpcIds());
+					if (actionConstraint.getInteractionType() != null) constraintMap.put("interaction_type", actionConstraint.getInteractionType());
+					if (actionConstraint.getInteractionTypes() != null) constraintMap.put("interaction_types", actionConstraint.getInteractionTypes());
 
 					answerData.constraints.add(constraintMap);
 				}

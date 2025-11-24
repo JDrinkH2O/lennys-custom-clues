@@ -39,7 +39,7 @@ Once an event is loaded, the Event Information dialog displays:
 
 **Answer Summary**
 - Reward text players receive when they solve the puzzle
-- Required trigger action (e.g., "Dig with a spade")
+- Required trigger action (e.g., "Dig with a spade" or "Perform an Emote: Wave")
 - List of all constraints defining the solution
 
 **Leaderboard**
@@ -67,8 +67,8 @@ The plugin captures game state data when any of the following events occur:
 ### 1. Digging with Spade
 - **Trigger**: Using a spade to dig (animation ID 830)
 
-### 2. Player Emotes - **NOT YET SUPPORTED**
-- **Trigger**: Performing any of a list of supported emotes (wave, dance, bow, etc.)
+### 2. Player Emotes
+- **Trigger**: Performing any of the supported emotes (wave, dance, bow, cheer, etc.)
 
 ### 3. NPC Interactions - **NOT YET SUPPORTED**
 - **Trigger**: Any interaction with NPCs (Attack, Talk-to, Trade, Pickpocket, etc.)
@@ -120,9 +120,9 @@ Event hosts can add multiple constraints to define puzzle requirements:
    - Define required equipped items
    - Support for specific gear requirements
 
-4. **Action Constraints** *(In Development)*
-   - Define required actions (emotes, NPC interactions, etc.)
-   - Link to specific trigger events
+4. **Action Constraints**
+   - **Emote Constraints**: Define required emotes that players must perform (fully supported)
+   - **NPC Interaction Constraints**: Define required NPC interactions *(In Development)*
 
 ## File Architecture
 

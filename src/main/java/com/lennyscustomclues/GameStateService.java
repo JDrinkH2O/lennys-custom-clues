@@ -96,7 +96,17 @@ public class GameStateService
 			}
 
 			String eventKey = getEventKey();
-			captureGameState("dig", "Digging animation (ID: " + animationId + ")", animationId, null, null, eventKey);
+
+			// Determine if this is a dig or emote animation
+			if (AnimationTriggers.isDigAnimation(animationId))
+			{
+				captureGameState("dig", "Digging animation (ID: " + animationId + ")", null, null, null, eventKey);
+			}
+			else if (AnimationTriggers.isEmoteAnimation(animationId))
+			{
+				String emoteName = EmoteData.getEmoteName(animationId);
+				captureGameState("emote", "Emote: " + emoteName + " (ID: " + animationId + ")", animationId, null, null, eventKey);
+			}
 		});
 	}
 

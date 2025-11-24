@@ -2,6 +2,7 @@ package com.lennyscustomclues.dialogs;
 
 import com.lennyscustomclues.AnswerBuilder;
 import com.lennyscustomclues.ApiClient;
+import com.lennyscustomclues.EmoteData;
 import net.runelite.client.ui.ColorScheme;
 
 import javax.swing.*;
@@ -80,7 +81,24 @@ public class SubmitAnswerDialog extends JDialog
 		}
 		else
 		{
-			summaryBuilder.append("Required Action: Dig with a spade\n");
+			// Check if there's an emote constraint
+			String requiredAction = "Dig with a spade";
+			for (int i = 0; i < answerBuilder.getConstraintCount(); i++)
+			{
+				com.lennyscustomclues.constraints.Constraint constraint = answerBuilder.getConstraint(i);
+				if (constraint instanceof com.lennyscustomclues.constraints.ActionConstraint)
+				{
+					com.lennyscustomclues.constraints.ActionConstraint actionConstraint =
+						(com.lennyscustomclues.constraints.ActionConstraint) constraint;
+					if ("emote".equals(actionConstraint.getType()) && actionConstraint.getEmoteId() != null)
+					{
+						String emoteName = EmoteData.getEmoteName(actionConstraint.getEmoteId());
+						requiredAction = "Perform an Emote: " + emoteName;
+					}
+				}
+			}
+			summaryBuilder.append("Required Action: ").append(requiredAction).append("\n");
+
 			for (int i = 0; i < answerBuilder.getConstraintCount(); i++)
 			{
 				com.lennyscustomclues.constraints.Constraint constraint = answerBuilder.getConstraint(i);
