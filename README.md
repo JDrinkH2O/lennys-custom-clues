@@ -130,20 +130,51 @@ The plugin follows a clean separation of concerns across multiple files:
 
 ### Core Files
 
+#### Plugin Core
 | File | Responsibility |
 |------|---------------|
 | **LennysCustomCluesPlugin.java** | Event detection and plugin lifecycle management. Handles RuneLite event subscriptions and delegates processing to services. |
+| **LennysCustomCluesConfig.java** | Configuration interface defining plugin settings (debug mode, celebration options). |
+
+#### UI Panels
+| File | Responsibility |
+|------|---------------|
 | **MainPanel.java** | Primary panel container that displays the plugin UI. |
 | **LennysCustomCluesPanel.java** | Player mode UI with event key management buttons and "Create a new Answer" button. Displays submission status and results. |
+
+#### Dialogs
+| File | Responsibility |
+|------|---------------|
+| **EventKeyDialog.java** | Dialog for setting or changing the player's event key with real-time validation. |
 | **dialogs/AnswerBuilderDialog.java** | Answer builder dialog window for event hosts to create puzzles with constraints and reward text. |
-| **dialogs/LocationConstraintDialog.java** | Dialog for configuring location constraints with live coordinate display and "Use Current Location" feature. |
 | **dialogs/SubmitAnswerDialog.java** | Dialog for submitting completed answers to the server with event key validation. |
+| **dialogs/ManageEventDialog.java** | Dialog for loading existing events by entering event key and secret key credentials. |
+| **dialogs/EventInfoDialog.java** | Dialog displaying event information, leaderboard, and management options (edit answer, view completions). |
+| **dialogs/LocationConstraintDialog.java** | Dialog for configuring location constraints with live coordinate display and "Use Current Location" feature. |
+
+#### Services & Logic
+| File | Responsibility |
+|------|---------------|
 | **GameStateService.java** | Business logic coordination, API integration, and workflow management. Orchestrates the entire capture and submission process. Manages event key state. |
 | **GameStateCapture.java** | Raw data extraction and formatting from the game client. Pure data collection without side effects. |
 | **AnimationTriggers.java** | Animation ID constants and trigger detection logic. Determines which animations should trigger game state capture. |
 | **CelebrationManager.java** | Manages victory celebrations including fireworks and sound effects when puzzles are solved correctly. |
-| **LennysCustomCluesConfig.java** | Configuration interface defining plugin settings (debug mode, celebration options). |
 | **ApiClient.java** | HTTP communication with external API. Handles JSON serialization and network requests. |
+
+#### Data Models
+| File | Responsibility |
+|------|---------------|
+| **AnswerBuilder.java** | Model class for building answer submissions with constraints and reward text. Manages constraint collection and answer data structure. |
+
+#### Constraints
+| File | Responsibility |
+|------|---------------|
+| **constraints/Constraint.java** | Base interface defining the contract for all constraint types. Provides description and type identification methods. |
+| **constraints/LocationConstraint.java** | Constraint implementation for world coordinates, supporting exact positions, ranges, and tolerance values. |
+| **constraints/InventoryConstraint.java** | Constraint implementation for inventory requirements (contains, exact slot, minimum quantity, any-of matching). |
+| **constraints/EquipmentConstraint.java** | Constraint implementation for equipped items and gear requirements. |
+| **constraints/ActionConstraint.java** | Constraint implementation for required player actions (emotes, interactions). |
+| **constraints/EventKeyConstraint.java** | Constraint implementation for event key validation and matching. |
 
 ## JSON Schema
 
@@ -206,33 +237,3 @@ The plugin generates JSON objects with the following structure:
 | `interaction_type` | string/null | Menu option text (e.g., "Attack", "Talk-to") if NPC interaction, null otherwise |
 | `event_key` | string | User-provided event key from the UI text field |
 | `rsn` | string/null | Player's RuneScape Name (display name), null if player not found |
-
-### Example JSON Output
-
-**Emote Trigger:**
-```json
-{
-  "location": {"world": {"x": 3200, "y": 3200, "plane": 0}, "local": {"sceneX": 32, "sceneY": 32}},
-  "inventory": [{"slot": 0, "id": 995, "quantity": 1000}],
-  "worn_items": [{"slot": 3, "id": 1277, "quantity": 1}],
-  "emote_id": 863,
-  "npc_id": null,
-  "interaction_type": null,
-  "event_key": "puzzle-1-wave",
-  "rsn": "PlayerName123"
-}
-```
-
-**NPC Interaction:**
-```json
-{
-  "location": {"world": {"x": 3200, "y": 3200, "plane": 0}, "local": {"sceneX": 32, "sceneY": 32}},
-  "inventory": [{"slot": 0, "id": 995, "quantity": 1000}],
-  "worn_items": [{"slot": 3, "id": 1277, "quantity": 1}],
-  "emote_id": null,
-  "npc_id": 1234,
-  "interaction_type": "Talk-to",
-  "event_key": "quest-step-5",
-  "rsn": "PlayerName123"
-}
-```
