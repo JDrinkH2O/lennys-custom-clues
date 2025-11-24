@@ -3,7 +3,7 @@ plugins {
 }
 
 repositories {
-	mavenLocal()
+	// mavenLocal() - commented out to match pluginhub environment
 	maven {
 		url = 'https://repo.runelite.net'
 		content {
