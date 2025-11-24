@@ -43,8 +43,8 @@ public class CelebrationManager
 	{
 		try
 		{
-			// Play a celebratory sound - using NPC teleport woosh which has a magical/triumphant feel
-			client.playSoundEffect(SoundEffectID.NPC_TELEPORT_WOOSH);
+			// Play a celebratory sound - using the triumphant fanfare sound (ID 2930)
+			client.playSoundEffect(2930);
 			log.debug("Played victory sound effect");
 		}
 		catch (Exception e)
@@ -61,7 +61,8 @@ public class CelebrationManager
 			{
 				// Create the vanilla OSRS level-up fireworks animation on the player
 				// SpotAnim ID 199 is the standard fireworks that appear when leveling up
-				client.getLocalPlayer().createSpotAnim(0, 199, 0, 0);
+				// Height set to 100 to display above the player's head
+				client.getLocalPlayer().createSpotAnim(0, 199, 100, 0);
 				
 				// Also play the level-up sound effects for authenticity
 				client.playSoundEffect(2396); // Level up sound 1
