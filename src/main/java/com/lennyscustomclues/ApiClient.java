@@ -35,10 +35,10 @@ public class ApiClient
 	private final Gson gson;
 
 	@Inject
-	public ApiClient()
+	public ApiClient(OkHttpClient okHttpClient, Gson gson)
 	{
-		this.httpClient = new OkHttpClient();
-		this.gson = new Gson();
+		this.httpClient = okHttpClient;
+		this.gson = gson;
 	}
 
 	public CompletableFuture<ApiResponse> submitGuess(GameStateSubmission gameState)
