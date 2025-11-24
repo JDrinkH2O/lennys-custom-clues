@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Singleton
@@ -21,6 +23,9 @@ public class CelebrationManager
 
 	@Inject
 	private LennysCustomCluesConfig config;
+
+	@Inject
+	private ScheduledExecutorService scheduledExecutorService;
 
 	public void triggerVictoryCelebration(String puzzleName)
 	{
@@ -63,18 +68,18 @@ public class CelebrationManager
 				// SpotAnim ID 199 is the standard fireworks that appear when leveling up
 				// Height set to 100 to display above the player's head
 				client.getLocalPlayer().createSpotAnim(0, 199, 100, 0);
-				
+
 				// Also play the level-up sound effects for authenticity
 				client.playSoundEffect(2396); // Level up sound 1
-				clientThread.invokeLater(() -> {
-					try {
-						Thread.sleep(583); // 35 game ticks delay (35 * 16.67ms = ~583ms)
+
+				// Schedule the second sound effect with a delay using ScheduledExecutorService
+				// to avoid blocking the client thread
+				scheduledExecutorService.schedule(() -> {
+					clientThread.invokeLater(() -> {
 						client.playSoundEffect(2384); // Level up sound 2
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-					}
-				});
-				
+					});
+				}, 583, TimeUnit.MILLISECONDS); // 35 game ticks delay (35 * 16.67ms = ~583ms)
+
 				log.debug("Triggered vanilla fireworks animation (SpotAnim 199) on player");
 			}
 		}
