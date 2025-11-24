@@ -2,33 +2,63 @@
 
 A RuneLite plugin for capturing game state data for community-run clue scroll puzzles in Old School RuneScape.
 
-## Plugin Functionality
+## Using the Plugin as a Player
 
-As a player, set an event key given to you by your event host. Only when a valid event key is set, this plugin automatically captures the player's complete game state when specific trigger events occur. The captured data includes the player's location coordinates, inventory contents, and worn equipment. This information is sent to the Lenny's Labyrinth backend API, compared to the stored answer restrictions defined for the provided event key, and gives the player fireworks and a reward message if they have guessed correctly.
+As a player, you will have received some kind of riddle along with an event key from a fellow player, clean leader, or similar. Click the **"Set Event Key"** button and provide the key to begin playing. Once a valid event key is set, the client will capture information like worn equipment, inventory, and location when the player does things like dig, emote, and interact with Gielinor. This information is sent to a backend server where the answer for your event key is stored, and you will be alerted if you solve their riddle!
 
-As an event host, you can click the "Create a new Answer" button in the plugin panel to open the Answer Builder window. This allows you to create a new event to be stored in the event database. You will choose an event key, answer requirements, and the reward message to be sent to players upon completion.
+## Event Management
 
-**Key Features:**
-- Automatic game state capture on various trigger events
-- JSON-formatted output for easy processing
-- Console logging and side panel display
-- Real-time trigger detection and logging
-- Event Key management for conditional capture control
-- Answer Builder window for creating custom puzzles
+Event hosts can create and manage custom puzzle events through the plugin's event management interface. This system allows hosts to design puzzle solutions, track participant progress, and edit existing events.
 
-## Event Key Management
+### Creating Events
 
-The plugin includes Event Key management buttons in its side panel interface. The event key serves as a conditional gate for all game state capture operations:
+1. Click the **"Create a new event"** button in the plugin panel
+2. The Answer Builder dialog opens, allowing you to:
+   - Define reward text that players receive upon solving the puzzle
+   - Add constraints (location, inventory, equipment, actions, etc)
+   - Submit the event to the server with a unique event key **and a secret key** which is required to manage your event later
+4. Share the event key with players so they can participate
 
-- **Purpose**: Allows users to control when game state should be captured
-- **UI**: Three buttons manage the event key state:
-  - "Set Event Key" - Opens a dialog to enter an event key
-  - "Unset Event Key" - Clears the current event key
-  - "Change Event Key" - Opens a dialog to change the existing event key
-- **Requirement**: Must contain non-whitespace text for any capture to occur
-- **Behavior**: When empty, all trigger events are silently ignored
-- **Debug Mode**: When debug mode is enabled in plugin settings, skipped captures will show debug messages in the game chat
-- **JSON Integration**: The event key value is included in all captured game state JSON under the `event_key` field
+See the [Answer Builder](#answer-builder) section for detailed information about creating puzzles.
+
+### Managing Existing Events
+
+Event hosts can view and edit their existing events using the **"Manage existing event"** button:
+
+#### Loading an Event
+
+1. Click **"Manage existing event"** in the plugin panel
+2. Enter your **Event Key** and **Secret Key** (both are required)
+3. Click **"Load Event"** to retrieve the event information
+
+**Important**: You choose a secret key when you first create an event, and it is not changeable. Keep it secure as it's required for all management operations.
+
+#### Event Information View
+
+Once an event is loaded, the Event Information dialog displays:
+
+**Answer Summary**
+- Reward text players receive when they solve the puzzle
+- Required trigger action (e.g., "Dig with a spade")
+- List of all constraints defining the solution
+
+**Leaderboard**
+- Ranked table of all players who have solved the event
+- Player names (RSN)
+- Completion timestamps (displayed in your local time)
+- Shows "No players have solved this event yet" if no completions
+
+**Available Actions**
+- **Edit Answer**: Modify the event's reward text or constraints
+- **Close**: Exit the event information view
+
+#### Editing Events
+
+From the Event Information dialog, click **"Edit Answer"** to:
+- Update the reward text
+- Modify existing constraints
+- Add or remove constraints
+- Submit changes to the server using the same event key and secret key
 
 ## Current Trigger Events
 
@@ -36,7 +66,6 @@ The plugin captures game state data when any of the following events occur:
 
 ### 1. Digging with Spade
 - **Trigger**: Using a spade to dig (animation ID 830)
-- **Use case**: Treasure hunt and clue scroll activities
 
 ### 2. Player Emotes - **NOT YET SUPPORTED**
 - **Trigger**: Performing any of a list of supported emotes (wave, dance, bow, etc.)
@@ -72,7 +101,7 @@ The Answer Builder window allows event hosts to:
 
 - **Define Reward Text**: Enter the message that players will see when they solve the puzzle correctly (required)
 - **Add Constraints**: Define the conditions that must be met for a correct answer
-- **Submit to Server**: Create the event with a unique event key
+- **Submit to Server**: Create the event with a unique event key and a secret key
 
 ### Constraint Types
 
@@ -95,22 +124,6 @@ Event hosts can add multiple constraints to define puzzle requirements:
    - Define required actions (emotes, NPC interactions, etc.)
    - Link to specific trigger events
 
-### Creating a Puzzle
-
-1. Click "Create a new Answer" in the plugin panel
-2. Enter the reward text players will receive
-3. Add one or more constraints defining the solution
-4. Click "Submit Answer to Server"
-5. Enter a unique event key for your puzzle
-6. Share the event key with players
-
-### Constraint Management
-
-- **View Constraints**: All added constraints appear in the scrollable constraints panel
-- **Remove Constraints**: Click the "X" button on any constraint to remove it
-- **Clear All**: Use the "Clear All" button to reset and start over
-- **Submit Button**: Only enabled when both reward text and at least one constraint are defined
-
 ## File Architecture
 
 The plugin follows a clean separation of concerns across multiple files:
@@ -131,17 +144,6 @@ The plugin follows a clean separation of concerns across multiple files:
 | **CelebrationManager.java** | Manages victory celebrations including fireworks and sound effects when puzzles are solved correctly. |
 | **LennysCustomCluesConfig.java** | Configuration interface defining plugin settings (debug mode, celebration options). |
 | **ApiClient.java** | HTTP communication with external API. Handles JSON serialization and network requests. |
-
-### Data Flow (Player Mode)
-
-1. **Event Detection**: `LennysCustomCluesPlugin` receives RuneLite events
-2. **Trigger Validation**: `AnimationTriggers` determines if the event should trigger capture
-3. **Event Key Check**: `GameStateService` verifies that a valid event key is set
-4. **Data Extraction**: `GameStateCapture` extracts raw data from the game client
-5. **API Communication**: `ApiClient` submits the formatted data to the external service
-6. **Response Handling**: `GameStateService` processes the API response
-7. **Celebration**: If successful, `CelebrationManager` triggers fireworks and sound effects
-8. **UI Updates**: `LennysCustomCluesPanel` displays the results to the user
 
 ## JSON Schema
 
