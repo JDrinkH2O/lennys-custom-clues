@@ -28,6 +28,10 @@ public class EventInfoDialog extends JDialog
 	private List<Map<String, Object>> constraints;
 	private List<ApiClient.PlayerCompletion> completedBy;
 
+	// UI components that need to be refreshed
+	private JPanel mainPanel;
+	private JLabel statusLabel;
+
 	public EventInfoDialog(JFrame parent, Client client, ApiClient apiClient,
 		String eventKey, String secretKey, String rewardText,
 		List<Map<String, Object>> constraints, List<ApiClient.PlayerCompletion> completedBy)
@@ -61,7 +65,7 @@ public class EventInfoDialog extends JDialog
 		titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 		// Main content panel
-		JPanel mainPanel = new JPanel();
+		mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -76,9 +80,18 @@ public class EventInfoDialog extends JDialog
 		mainPanel.add(Box.createVerticalStrut(10));
 		mainPanel.add(solversPanel);
 
-		// Bottom panel with buttons
+		// Bottom panel with buttons and status
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+		bottomPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+
+		// Buttons panel
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+
+		JButton refreshButton = new JButton("Refresh");
+		refreshButton.addActionListener(e -> onRefresh());
+		buttonPanel.add(refreshButton);
 
 		JButton editButton = new JButton("Edit Answer");
 		editButton.addActionListener(e -> onEditAnswer());
@@ -88,9 +101,18 @@ public class EventInfoDialog extends JDialog
 		closeButton.addActionListener(e -> dispose());
 		buttonPanel.add(closeButton);
 
+		// Status label
+		statusLabel = new JLabel(" ");
+		statusLabel.setForeground(Color.WHITE);
+		statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		statusLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+		bottomPanel.add(buttonPanel);
+		bottomPanel.add(statusLabel);
+
 		add(titleLabel, BorderLayout.NORTH);
 		add(mainPanel, BorderLayout.CENTER);
-		add(buttonPanel, BorderLayout.SOUTH);
+		add(bottomPanel, BorderLayout.SOUTH);
 	}
 
 	private JPanel createAnswerSummaryPanel()
@@ -364,5 +386,72 @@ public class EventInfoDialog extends JDialog
 			constraints
 		);
 		answerDialog.setVisible(true);
+	}
+
+	private void onRefresh()
+	{
+		statusLabel.setText("Refreshing...");
+		statusLabel.setForeground(Color.YELLOW);
+
+		// Make API request to get the latest answer data
+		apiClient.getAnswer(eventKey, secretKey).thenAccept(response -> {
+			SwingUtilities.invokeLater(() -> {
+				if (response.isSuccess())
+				{
+					// Update the stored data
+					this.rewardText = response.reward_text;
+					this.constraints = response.constraints;
+					this.completedBy = response.completed_by;
+
+					// Rebuild the UI panels
+					mainPanel.removeAll();
+
+					JPanel summaryPanel = createAnswerSummaryPanel();
+					JPanel solversPanel = createSolversPanel();
+
+					mainPanel.add(summaryPanel);
+					mainPanel.add(Box.createVerticalStrut(10));
+					mainPanel.add(solversPanel);
+
+					// Refresh the display
+					mainPanel.revalidate();
+					mainPanel.repaint();
+
+					statusLabel.setText("Refreshed successfully!");
+					statusLabel.setForeground(Color.GREEN);
+
+					// Clear status message after 3 seconds
+					Timer timer = new Timer(3000, e -> {
+						statusLabel.setText(" ");
+					});
+					timer.setRepeats(false);
+					timer.start();
+				}
+				else
+				{
+					// Handle error
+					String errorMessage = "Refresh failed: ";
+					if ("NOT_FOUND".equals(response.errorType))
+					{
+						errorMessage += "Event key not found";
+					}
+					else if ("UNAUTHORIZED".equals(response.errorType))
+					{
+						errorMessage += "Invalid secret key";
+					}
+					else if ("NETWORK_ERROR".equals(response.errorType))
+					{
+						errorMessage += "Network error";
+					}
+					else
+					{
+						errorMessage += response.errorMessage;
+					}
+
+					statusLabel.setText(errorMessage);
+					statusLabel.setForeground(Color.RED);
+				}
+			});
+		});
 	}
 }
