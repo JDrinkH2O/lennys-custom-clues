@@ -635,6 +635,10 @@ public class AnswerBuilderDialog extends JDialog
 		{
 			JOptionPane.showMessageDialog(this, "Please enter valid numbers for location fields", "Input Error", JOptionPane.ERROR_MESSAGE);
 		}
+		catch (IllegalArgumentException ex)
+		{
+			JOptionPane.showMessageDialog(this, ex.getMessage(), "Validation Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private LocationConstraint buildLocationConstraint()
@@ -667,6 +671,25 @@ public class AnswerBuilderDialog extends JDialog
 		constraint.setMaxY(parseInteger("maxY"));
 		constraint.setPlane(parseInteger("plane"));
 		constraint.setTolerance(parseInteger("tolerance"));
+
+		// Validate bounds constraints
+		if ("bounds".equals(constraintType))
+		{
+			Integer minX = constraint.getMinX();
+			Integer maxX = constraint.getMaxX();
+			Integer minY = constraint.getMinY();
+			Integer maxY = constraint.getMaxY();
+
+			if (minX != null && maxX != null && maxX < minX)
+			{
+				throw new IllegalArgumentException("Max X must be greater than or equal to Min X");
+			}
+
+			if (minY != null && maxY != null && maxY < minY)
+			{
+				throw new IllegalArgumentException("Max Y must be greater than or equal to Min Y");
+			}
+		}
 
 		return constraint;
 	}
