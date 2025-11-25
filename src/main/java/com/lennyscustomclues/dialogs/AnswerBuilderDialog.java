@@ -291,20 +291,20 @@ public class AnswerBuilderDialog extends JDialog
 		// Create all possible fields
 		locationFields.put("exactX", createNumberField());
 		locationFields.put("exactY", createNumberField());
-		locationFields.put("minX", createNumberField());
-		locationFields.put("maxX", createNumberField());
-		locationFields.put("minY", createNumberField());
-		locationFields.put("maxY", createNumberField());
+		locationFields.put("point1X", createNumberField());
+		locationFields.put("point1Y", createNumberField());
+		locationFields.put("point2X", createNumberField());
+		locationFields.put("point2Y", createNumberField());
 		locationFields.put("plane", createNumberField());
 		locationFields.put("tolerance", createNumberField());
 
 		// Create corresponding labels
 		locationLabels.put("exactX", createLabel("Exact X:"));
 		locationLabels.put("exactY", createLabel("Exact Y:"));
-		locationLabels.put("minX", createLabel("Min X:"));
-		locationLabels.put("maxX", createLabel("Max X:"));
-		locationLabels.put("minY", createLabel("Min Y:"));
-		locationLabels.put("maxY", createLabel("Max Y:"));
+		locationLabels.put("point1X", createLabel("Point 1 X:"));
+		locationLabels.put("point1Y", createLabel("Point 1 Y:"));
+		locationLabels.put("point2X", createLabel("Point 2 X:"));
+		locationLabels.put("point2Y", createLabel("Point 2 Y:"));
 		locationLabels.put("plane", createLabel("Plane (optional):"));
 		locationLabels.put("tolerance", createLabel("Tolerance:"));
 	}
@@ -364,10 +364,35 @@ public class AnswerBuilderDialog extends JDialog
 
 			case "Within a Rectangle":
 				constraintType = "bounds";
-				addFieldToPanel(gbc, row++, "minX");
-				addFieldToPanel(gbc, row++, "maxX");
-				addFieldToPanel(gbc, row++, "minY");
-				addFieldToPanel(gbc, row++, "maxY");
+				addFieldToPanel(gbc, row++, "point1X");
+				addFieldToPanel(gbc, row++, "point1Y");
+
+				// Add "Use Current Location" button for Point 1
+				JButton usePoint1Button = new JButton("Use Current Location for Point 1");
+				usePoint1Button.addActionListener(e -> onUseCurrentLocationForPoint(1));
+				gbc.gridx = 0;
+				gbc.gridy = row++;
+				gbc.gridwidth = 2;
+				gbc.fill = GridBagConstraints.HORIZONTAL;
+				gbc.insets = new Insets(5, 5, 10, 5);
+				locationFieldsPanel.add(usePoint1Button, gbc);
+				gbc.gridwidth = 1;
+				gbc.insets = new Insets(5, 5, 5, 5);
+
+				addFieldToPanel(gbc, row++, "point2X");
+				addFieldToPanel(gbc, row++, "point2Y");
+
+				// Add "Use Current Location" button for Point 2
+				JButton usePoint2Button = new JButton("Use Current Location for Point 2");
+				usePoint2Button.addActionListener(e -> onUseCurrentLocationForPoint(2));
+				gbc.gridx = 0;
+				gbc.gridy = row++;
+				gbc.gridwidth = 2;
+				gbc.fill = GridBagConstraints.HORIZONTAL;
+				gbc.insets = new Insets(5, 5, 10, 5);
+				locationFieldsPanel.add(usePoint2Button, gbc);
+				gbc.gridwidth = 1;
+				gbc.insets = new Insets(5, 5, 5, 5);
 				break;
 
 			case "None":
@@ -444,6 +469,24 @@ public class AnswerBuilderDialog extends JDialog
 
 			if (exactXField != null) exactXField.setText(String.valueOf(currentLocation.getX()));
 			if (exactYField != null) exactYField.setText(String.valueOf(currentLocation.getY()));
+			if (planeField != null) planeField.setText(String.valueOf(currentLocation.getPlane()));
+		}
+	}
+
+	private void onUseCurrentLocationForPoint(int pointNumber)
+	{
+		WorldPoint currentLocation = getCurrentPlayerLocation();
+		if (currentLocation != null)
+		{
+			String xFieldName = "point" + pointNumber + "X";
+			String yFieldName = "point" + pointNumber + "Y";
+
+			JTextField xField = locationFields.get(xFieldName);
+			JTextField yField = locationFields.get(yFieldName);
+			JTextField planeField = locationFields.get("plane");
+
+			if (xField != null) xField.setText(String.valueOf(currentLocation.getX()));
+			if (yField != null) yField.setText(String.valueOf(currentLocation.getY()));
 			if (planeField != null) planeField.setText(String.valueOf(currentLocation.getPlane()));
 		}
 	}
@@ -665,29 +708,27 @@ public class AnswerBuilderDialog extends JDialog
 		LocationConstraint constraint = new LocationConstraint(constraintType);
 		constraint.setExactX(parseInteger("exactX"));
 		constraint.setExactY(parseInteger("exactY"));
-		constraint.setMinX(parseInteger("minX"));
-		constraint.setMaxX(parseInteger("maxX"));
-		constraint.setMinY(parseInteger("minY"));
-		constraint.setMaxY(parseInteger("maxY"));
 		constraint.setPlane(parseInteger("plane"));
 		constraint.setTolerance(parseInteger("tolerance"));
 
-		// Validate bounds constraints
+		// For bounds type, calculate min/max from the two points
 		if ("bounds".equals(constraintType))
 		{
-			Integer minX = constraint.getMinX();
-			Integer maxX = constraint.getMaxX();
-			Integer minY = constraint.getMinY();
-			Integer maxY = constraint.getMaxY();
+			Integer point1X = parseInteger("point1X");
+			Integer point1Y = parseInteger("point1Y");
+			Integer point2X = parseInteger("point2X");
+			Integer point2Y = parseInteger("point2Y");
 
-			if (minX != null && maxX != null && maxX < minX)
+			if (point1X != null && point2X != null)
 			{
-				throw new IllegalArgumentException("Max X must be greater than or equal to Min X");
+				constraint.setMinX(Math.min(point1X, point2X));
+				constraint.setMaxX(Math.max(point1X, point2X));
 			}
 
-			if (minY != null && maxY != null && maxY < minY)
+			if (point1Y != null && point2Y != null)
 			{
-				throw new IllegalArgumentException("Max Y must be greater than or equal to Min Y");
+				constraint.setMinY(Math.min(point1Y, point2Y));
+				constraint.setMaxY(Math.max(point1Y, point2Y));
 			}
 		}
 
@@ -826,10 +867,11 @@ public class AnswerBuilderDialog extends JDialog
 					else if ("bounds".equals(type))
 					{
 						locationTypeCombo.setSelectedItem("Within a Rectangle");
-						setIntegerField("minX", constraintMap.get("min_x"));
-						setIntegerField("maxX", constraintMap.get("max_x"));
-						setIntegerField("minY", constraintMap.get("min_y"));
-						setIntegerField("maxY", constraintMap.get("max_y"));
+						// Convert min/max back to point1/point2 for display
+						setIntegerField("point1X", constraintMap.get("min_x"));
+						setIntegerField("point1Y", constraintMap.get("min_y"));
+						setIntegerField("point2X", constraintMap.get("max_x"));
+						setIntegerField("point2Y", constraintMap.get("max_y"));
 					}
 
 					// Set plane if present
