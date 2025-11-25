@@ -252,7 +252,8 @@ public class LocationConstraintDialog extends JDialog
 	{
 		try
 		{
-			constraint.setType((String) typeCombo.getSelectedItem());
+			String selectedType = (String) typeCombo.getSelectedItem();
+			constraint.setType(selectedType);
 			constraint.setExactX(parseInteger("exactX"));
 			constraint.setExactY(parseInteger("exactY"));
 			constraint.setMinX(parseInteger("minX"));
@@ -261,6 +262,27 @@ public class LocationConstraintDialog extends JDialog
 			constraint.setMaxY(parseInteger("maxY"));
 			constraint.setPlane(parseInteger("plane"));
 			constraint.setTolerance(parseInteger("tolerance"));
+
+			// Validate bounds constraints
+			if ("bounds".equals(selectedType))
+			{
+				Integer minX = constraint.getMinX();
+				Integer maxX = constraint.getMaxX();
+				Integer minY = constraint.getMinY();
+				Integer maxY = constraint.getMaxY();
+
+				if (minX != null && maxX != null && maxX < minX)
+				{
+					JOptionPane.showMessageDialog(this, "Max X must be greater than or equal to Min X", "Validation Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				if (minY != null && maxY != null && maxY < minY)
+				{
+					JOptionPane.showMessageDialog(this, "Max Y must be greater than or equal to Min Y", "Validation Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
 
 			cancelled = false;
 			onSave.accept(constraint);
