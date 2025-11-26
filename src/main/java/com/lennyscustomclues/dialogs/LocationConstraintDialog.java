@@ -1,6 +1,7 @@
 package com.lennyscustomclues.dialogs;
 
 import com.lennyscustomclues.constraints.LocationConstraint;
+import com.lennyscustomclues.LocationUtil;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
@@ -391,12 +392,7 @@ public class LocationConstraintDialog extends JDialog
 
 	private WorldPoint getCurrentPlayerLocation()
 	{
-		if (client == null) return null;
-		
-		Player player = client.getLocalPlayer();
-		if (player == null) return null;
-		
-		return player.getWorldLocation();
+		return LocationUtil.getPlayerWorldLocation(client);
 	}
 
 	private Integer parseInteger(String fieldName)

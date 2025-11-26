@@ -112,10 +112,11 @@ public class GameStateService
 
 	private void captureGameState(String trigger, String additionalInfo, Integer emoteId, Integer npcId, String interactionType, String eventKey)
 	{
+		WorldPoint worldLocation = LocationUtil.getPlayerWorldLocation(client);
 		Player player = client.getLocalPlayer();
-		if (player != null)
+
+		if (worldLocation != null && player != null)
 		{
-			WorldPoint worldLocation = player.getWorldLocation();
 			LocalPoint localLocation = player.getLocalLocation();
 
 			ApiClient.LocationData locationData = gameStateCapture.getLocationData(worldLocation, localLocation);

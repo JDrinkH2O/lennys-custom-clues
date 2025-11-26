@@ -4,6 +4,7 @@ import com.lennyscustomclues.constraints.*;
 import com.lennyscustomclues.AnswerBuilder;
 import com.lennyscustomclues.ApiClient;
 import com.lennyscustomclues.EmoteData;
+import com.lennyscustomclues.LocationUtil;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.coords.WorldPoint;
@@ -826,12 +827,7 @@ public class AnswerBuilderDialog extends JDialog
 
 	private WorldPoint getCurrentPlayerLocation()
 	{
-		if (client == null) return null;
-
-		Player player = client.getLocalPlayer();
-		if (player == null) return null;
-
-		return player.getWorldLocation();
+		return LocationUtil.getPlayerWorldLocation(client);
 	}
 
 	private void prepopulateFields(String rewardText, java.util.List<java.util.Map<String, Object>> constraints)
